@@ -1,0 +1,41 @@
+name: Publish Prerequisites Images
+
+on:
+  push:
+    branches: [ main ]  # or master, depending on your repo
+
+env:
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USER }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASS }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        folder: [ Frontend, Backend, Tests ]
+        include:
+          - folder: Frontend
+            image: jasminegraph-ui-frontend-prerequisites
+          - folder: Backend
+            image: jasminegraph-ui-backend-prerequisites
+          - folder: Tests
+            image: jasminegraph-ui-tests-prerequisites
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ matrix.image }}:temp ./${{ matrix.folder }}
+          CONTAINER_ID=$(docker create ${{ matrix.image }}:temp)
+          docker export $CONTAINER_ID | docker import - ${{ matrix.image }}:latest
+
+      - name: Docker Login
+        run: echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+
+      - name: Push Docker image
+        run: |
+          docker tag ${{ matrix.image }}:latest $DOCKER_USERNAME/${{ matrix.image }}:latest
+          docker push $DOCKER_USERNAME/${{ matrix.image }}:latest
