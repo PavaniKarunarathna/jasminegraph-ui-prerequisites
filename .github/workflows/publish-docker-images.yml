@@ -5,8 +5,8 @@ on:
     branches: [ main ]
 
 env:
-  DOCKER_USERNAME: ${{ secrets.DOCKER_USER }}
-  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASS }}
+  # not strictly needed, but handy if you want to reference these elsewhere
+  DOCKERHUB_USER: ${{ secrets.DOCKER_USER }}
 
 jobs:
   build-and-push:
@@ -24,7 +24,8 @@ jobs:
             image: jasminegraph-ui-tests-prerequisites
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -38,7 +39,7 @@ jobs:
           CONTAINER_ID=$(docker create ${{ matrix.image }}:temp)
           docker export $CONTAINER_ID | docker import - ${{ matrix.image }}:latest
 
-      - name: Push Docker image
+      - name: Tag & push to Docker Hub
         run: |
-          docker tag ${{ matrix.image }}:latest $DOCKER_USERNAME/${{ matrix.image }}:latest
-          docker push $DOCKER_USERNAME/${{ matrix.image }}:latest
+          docker tag ${{ matrix.image }}:latest ${DOCKERHUB_USER}/${{ matrix.image }}:latest
+          docker push ${DOCKERHUB_USER}/${{ matrix.image }}:latest
