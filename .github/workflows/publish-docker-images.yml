@@ -4,10 +4,6 @@ on:
   push:
     branches: [ main ]
 
-env:
-  # not strictly needed, but handy if you want to reference these elsewhere
-  DOCKERHUB_USER: ${{ secrets.DOCKER_USER }}
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -41,5 +37,5 @@ jobs:
 
       - name: Tag & push to Docker Hub
         run: |
-          docker tag ${{ matrix.image }}:latest ${DOCKERHUB_USER}/${{ matrix.image }}:latest
-          docker push ${DOCKERHUB_USER}/${{ matrix.image }}:latest
+          docker tag ${{ matrix.image }}:latest ${{ secrets.DOCKER_USER }}/${{ matrix.image }}:latest
+          docker push ${{ secrets.DOCKER_USER }}/${{ matrix.image }}:latest
