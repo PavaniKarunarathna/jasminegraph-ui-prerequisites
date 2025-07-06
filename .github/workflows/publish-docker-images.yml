@@ -2,7 +2,7 @@ name: Publish Prerequisites Images
 
 on:
   push:
-    branches: [ main ]  # or master, depending on your repo
+    branches: [ main ]
 
 env:
   DOCKER_USERNAME: ${{ secrets.DOCKER_USER }}
@@ -14,13 +14,13 @@ jobs:
 
     strategy:
       matrix:
-        folder: [ Frontend, Backend, Tests ]
+        folder: [ frontend, backend, tests ]
         include:
-          - folder: Frontend
+          - folder: frontend
             image: jasminegraph-ui-frontend-prerequisites
-          - folder: Backend
+          - folder: backend
             image: jasminegraph-ui-backend-prerequisites
-          - folder: Tests
+          - folder: tests
             image: jasminegraph-ui-tests-prerequisites
 
     steps:
